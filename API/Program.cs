@@ -4,19 +4,21 @@ using Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithOrigins("http://localhost:3000","https://localhost:3000")
+            .AllowCredentials();
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("CorsPolicy", policy =>
-//     {
-//         policy.AllowAnyMethod()
-//             .AllowAnyHeader()
-//             .WithOrigins("http://localhost:3000")
-//             .AllowCredentials();
-//     });
-// });
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -29,7 +31,7 @@ var app = builder.Build();
 // app.UseHttpsRedirection();
 
 // app.UseAuthorization();
-
+app.UseCors("CorsPolicy");
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();
